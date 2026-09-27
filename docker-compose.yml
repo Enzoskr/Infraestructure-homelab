@@ -1,0 +1,44 @@
+version: '3.8'
+
+services:
+  portainer:
+    image: portainer/portainer-ce:latest
+    container_name: portainer
+    restart: always
+    ports:
+      - "9000:9000"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - portainer_data:/data
+
+  pihole:
+    image: pihole/pihole:latest
+    container_name: pihole
+    restart: always
+    ports:
+      - "53:53/tcp"
+      - "53:53/udp"
+      - "80:80/tcp"
+    environment:
+      TZ: 'America/Argentina/Buenos_Aires'
+    volumes:
+      - pihole_config:/etc/pihole
+      - dnsmasq_config:/etc/dnsmasq.d
+
+  ocis:
+    image: owncloud/ocis:latest
+    container_name: owncloud
+    restart: always
+    ports:
+      - "${OCIS_PORT}:9200"
+    environment:
+      OCIS_URL: "https://${SERVER_IP}:9200"
+      OCIS_INSECURE: "true"
+      ADMIN_PASSWORD: "${OCIS_ADMIN_PASSWORD}"
+    volumes:
+      - /mnt/data1/ocis_data:/var/lib/ocis
+
+volumes:
+  portainer_data:
+  pihole_config:
+  dnsmasq_config:
